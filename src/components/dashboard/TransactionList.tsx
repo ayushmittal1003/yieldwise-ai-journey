@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 
 interface TransactionListProps {
   hasAIRule: boolean;
+  hasUSDCRule: boolean;
 }
 
 const baseTransactions = [
@@ -48,9 +49,9 @@ const baseTransactions = [
   },
 ];
 
-export function TransactionList({ hasAIRule }: TransactionListProps) {
-  const aiTransaction = {
-    id: "ai-sweep",
+export function TransactionList({ hasAIRule, hasUSDCRule }: TransactionListProps) {
+  const aiETHTransaction = {
+    id: "ai-sweep-eth",
     icon: <TrendingUp className="h-5 w-5 text-purple-600" />,
     name: "AI Sweep to Yield",
     type: "Auto-sweep • Today",
@@ -58,7 +59,22 @@ export function TransactionList({ hasAIRule }: TransactionListProps) {
     status: "Success",
   };
 
-  const transactions = hasAIRule ? [aiTransaction, ...baseTransactions] : baseTransactions;
+  const aiUSDCTransaction = {
+    id: "ai-sweep-usdc", 
+    icon: <TrendingUp className="h-5 w-5 text-blue-600" />,
+    name: "AI Sweep to Yield",
+    type: "Auto-sweep • Today", 
+    amount: "+ 932.90 USDC",
+    status: "Success",
+  };
+
+  let transactions = [...baseTransactions];
+  if (hasAIRule) {
+    transactions = [aiETHTransaction, ...transactions];
+  }
+  if (hasUSDCRule) {
+    transactions = [aiUSDCTransaction, ...transactions];
+  }
 
   return (
     <div className="space-y-6">

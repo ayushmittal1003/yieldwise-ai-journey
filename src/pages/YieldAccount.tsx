@@ -105,8 +105,21 @@ export default function YieldAccount() {
                   <span className="font-medium text-success">+1.5 ETH</span>
                 </div>
               )}
+
+              {state.hasUSDCRule && (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center space-x-3">
+                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <p className="font-medium">AI Sweep from USDC Wallet</p>
+                      <p className="text-sm text-muted-foreground">Sep 18, 2025</p>
+                    </div>
+                  </div>
+                  <span className="font-medium text-success">+932.90 USDC</span>
+                </div>
+              )}
               
-              {!state.hasAIRule && (
+              {!state.hasAIRule && !state.hasUSDCRule && (
                 <div className="text-center py-8 text-muted-foreground">
                   <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p>No transactions yet</p>
@@ -120,7 +133,7 @@ export default function YieldAccount() {
           <Card className="p-6">
             <h3 className="font-semibold mb-4">Active AI Rules</h3>
             <div className="space-y-4">
-              {state.hasAIRule ? (
+              {state.hasAIRule && (
                 <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-white text-xs">⟠</div>
@@ -130,7 +143,21 @@ export default function YieldAccount() {
                     Maintain 1.0 ETH in wallet, sweep excess to Yield Account daily
                   </p>
                 </div>
-              ) : (
+              )}
+
+              {state.hasUSDCRule && (
+                <div className="p-3 rounded-lg bg-green-50 border border-green-200">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs">$</div>
+                    <span className="font-medium">USDC Auto-Sweep Rule</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Maintain 500 USDC in wallet, sweep excess to Yield Account daily
+                  </p>
+                </div>
+              )}
+              
+              {!state.hasAIRule && !state.hasUSDCRule && (
                 <div className="text-center py-8 text-muted-foreground">
                   <Settings className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p>No active rules</p>

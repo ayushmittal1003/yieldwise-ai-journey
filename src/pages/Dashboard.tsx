@@ -11,7 +11,7 @@ import { useYieldState } from "@/hooks/useYieldState";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const { state, activateYield, dismissBanner, setAIRule, toggleYieldExpansion } = useYieldState();
+  const { state, activateYield, dismissBanner, setAIRule, setUSDCRule, toggleYieldExpansion } = useYieldState();
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const { toast } = useToast();
@@ -30,6 +30,15 @@ export default function Dashboard() {
     toast({
       title: "AI Rule Set Successfully",
       description: "ETH over 1.0 will be swept to your Yield Account daily.",
+    });
+  };
+
+  const handleUSDCRuleSet = () => {
+    setUSDCRule();
+    setShowAIChat(false);
+    toast({
+      title: "USDC Rule Set Successfully", 
+      description: "USDC over 500 will be swept to your Yield Account daily.",
     });
   };
 
@@ -76,7 +85,7 @@ export default function Dashboard() {
           <CurrencyCard
             icon={<div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">$</div>}
             currency="USDC"
-            amount="1,432.90"
+            amount={state.usdcBalance}
           />
 
           <CurrencyCard
@@ -105,7 +114,7 @@ export default function Dashboard() {
         </div>
 
         {/* Recent Transactions */}
-        <TransactionList hasAIRule={state.hasAIRule} />
+        <TransactionList hasAIRule={state.hasAIRule} hasUSDCRule={state.hasUSDCRule} />
 
         {/* AI Floating Button */}
         <AIFloatingButton onClick={() => setShowAIChat(true)} />
@@ -121,6 +130,7 @@ export default function Dashboard() {
           isOpen={showAIChat}
           onClose={() => setShowAIChat(false)}
           onRuleSet={handleAIRuleSet}
+          onUSDCRuleSet={handleUSDCRuleSet}
         />
       </div>
     </div>

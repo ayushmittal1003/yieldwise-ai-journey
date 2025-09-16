@@ -10,8 +10,10 @@ export interface YieldState {
   isActivated: boolean;
   showDiscoveryBanner: boolean;
   ethBalance: string;
+  usdcBalance: string;
   yieldTokens: Token[];
   hasAIRule: boolean;
+  hasUSDCRule: boolean;
   expandedYield: boolean;
 }
 
@@ -20,12 +22,14 @@ export function useYieldState() {
     isActivated: false,
     showDiscoveryBanner: true,
     ethBalance: "0.00",
+    usdcBalance: "1,432.90",
     yieldTokens: [
       { symbol: "ETH", amount: "0.00", icon: "⟠" },
       { symbol: "BTC", amount: "0.00", icon: "₿" },
       { symbol: "USDC", amount: "0.00", icon: "$" },
     ],
     hasAIRule: false,
+    hasUSDCRule: false,
     expandedYield: false,
   });
 
@@ -55,6 +59,24 @@ export function useYieldState() {
     }));
   };
 
+  const setUSDCRule = () => {
+    setState(prev => {
+      const currentUSDC = parseFloat(prev.usdcBalance.replace(",", ""));
+      const sweepAmount = Math.max(0, currentUSDC - 500);
+      
+      return {
+        ...prev,
+        hasUSDCRule: true,
+        usdcBalance: "500.00",
+        yieldTokens: [
+          prev.yieldTokens[0], // ETH unchanged
+          prev.yieldTokens[1], // BTC unchanged  
+          { symbol: "USDC", amount: sweepAmount.toFixed(2), icon: "$" },
+        ],
+      };
+    });
+  };
+
   const toggleYieldExpansion = () => {
     setState(prev => ({ ...prev, expandedYield: !prev.expandedYield }));
   };
@@ -81,6 +103,7 @@ export function useYieldState() {
     activateYield,
     dismissBanner,
     setAIRule,
+    setUSDCRule,
     toggleYieldExpansion,
     withdrawFromYield,
   };

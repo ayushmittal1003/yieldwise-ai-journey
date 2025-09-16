@@ -16,9 +16,10 @@ interface AIChatOverlayProps {
   isOpen: boolean;
   onClose: () => void;
   onRuleSet: () => void;
+  onUSDCRuleSet: () => void;
 }
 
-export function AIChatOverlay({ isOpen, onClose, onRuleSet }: AIChatOverlayProps) {
+export function AIChatOverlay({ isOpen, onClose, onRuleSet, onUSDCRuleSet }: AIChatOverlayProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -28,7 +29,7 @@ export function AIChatOverlay({ isOpen, onClose, onRuleSet }: AIChatOverlayProps
     },
   ]);
   
-  const [input, setInput] = useState("Maintain 1 ETH in my wallet and sweep excess daily to Yield Account.");
+  const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSend = async () => {
@@ -42,14 +43,33 @@ export function AIChatOverlay({ isOpen, onClose, onRuleSet }: AIChatOverlayProps
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const userInput = input.toLowerCase();
     setInput("");
     setIsProcessing(true);
 
     // Simulate AI processing
     setTimeout(() => {
+      let aiResponseText = "";
+      let ruleCallback = () => {};
+
+      // Check if it's an ETH rule
+      if (userInput.includes("eth") && userInput.includes("1")) {
+        aiResponseText = "Done! I'll sweep any ETH over 1.0 into your Yield Account at end of each day.";
+        ruleCallback = onRuleSet;
+      }
+      // Check if it's a USDC rule
+      else if (userInput.includes("usdc") && userInput.includes("500")) {
+        aiResponseText = "Perfect! I'll maintain 500 USDC in your wallet and sweep any excess to your Yield Account daily.";
+        ruleCallback = onUSDCRuleSet;
+      }
+      // Default response
+      else {
+        aiResponseText = "I can help you set up rules to maintain balances and sweep excess funds. Try telling me something like 'Maintain 500 USDC and sweep rest to Yield Account' or 'Keep 1 ETH in wallet, sweep excess daily'.";
+      }
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: "Done! I'll sweep any ETH over 1.0 into your Yield Account at end of each day.",
+        text: aiResponseText,
         isAI: true,
         timestamp: new Date(),
       };
@@ -57,10 +77,12 @@ export function AIChatOverlay({ isOpen, onClose, onRuleSet }: AIChatOverlayProps
       setMessages(prev => [...prev, aiResponse]);
       setIsProcessing(false);
       
-      // Trigger rule set after a brief delay
-      setTimeout(() => {
-        onRuleSet();
-      }, 1500);
+      // Trigger rule set after a brief delay if we have a callback
+      if (ruleCallback !== (() => {})) {
+        setTimeout(() => {
+          ruleCallback();
+        }, 1500);
+      }
     }, 1500);
   };
 
