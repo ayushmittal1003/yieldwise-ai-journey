@@ -38,7 +38,7 @@ export function useYieldState() {
       ...prev,
       isActivated: true,
       showDiscoveryBanner: false,
-      ethBalance: "2.5",
+      ethBalance: "2.5", // ETH wallet gets funded but yield account stays at 0.00
     }));
   };
 
@@ -50,11 +50,11 @@ export function useYieldState() {
     setState(prev => ({
       ...prev,
       hasAIRule: true,
-      ethBalance: "1.0",
+      ethBalance: "1.0", // Keep 1.0 ETH in wallet
       yieldTokens: [
-        { symbol: "ETH", amount: "1.5", icon: "⟠" },
+        { symbol: "ETH", amount: "1.5", icon: "⟠" }, // Sweep 1.5 ETH to yield
         { symbol: "BTC", amount: "0.00", icon: "₿" },
-        { symbol: "USDC", amount: "0.00", icon: "$" },
+        { symbol: "USDC", amount: prev.yieldTokens[2].amount, icon: "$" }, // Preserve existing USDC yield
       ],
     }));
   };
@@ -67,11 +67,11 @@ export function useYieldState() {
       return {
         ...prev,
         hasUSDCRule: true,
-        usdcBalance: "500.00",
+        usdcBalance: "500.00", // Keep 500 USDC in wallet
         yieldTokens: [
-          prev.yieldTokens[0], // ETH unchanged
+          prev.yieldTokens[0], // Preserve existing ETH yield
           prev.yieldTokens[1], // BTC unchanged  
-          { symbol: "USDC", amount: sweepAmount.toFixed(2), icon: "$" },
+          { symbol: "USDC", amount: sweepAmount.toFixed(2), icon: "$" }, // Sweep excess USDC to yield
         ],
       };
     });
