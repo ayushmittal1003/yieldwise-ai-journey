@@ -18,23 +18,45 @@ export interface YieldState {
 }
 
 export function useYieldState() {
-  const [state, setState] = useState<YieldState>({
-    isActivated: false,
-    showDiscoveryBanner: true,
-    ethBalance: "0.00",
-    usdcBalance: "1,432.90",
-    yieldTokens: [
-      { symbol: "ETH", amount: "0.00", icon: "⟠" },
-      { symbol: "BTC", amount: "0.00", icon: "₿" },
-      { symbol: "USDC", amount: "0.00", icon: "$" },
-    ],
-    hasAIRule: false,
-    hasUSDCRule: false,
-    expandedYield: false,
-  });
+  // Initialize state from localStorage if available
+  const getInitialState = (): YieldState => {
+    const saved = localStorage.getItem('yieldState');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to parse saved yield state:', e);
+      }
+    }
+    return {
+      isActivated: false,
+      showDiscoveryBanner: true,
+      ethBalance: "0.00",
+      usdcBalance: "1,432.90",
+      yieldTokens: [
+        { symbol: "ETH", amount: "0.00", icon: "⟠" },
+        { symbol: "BTC", amount: "0.00", icon: "₿" },
+        { symbol: "USDC", amount: "0.00", icon: "$" },
+      ],
+      hasAIRule: false,
+      hasUSDCRule: false,
+      expandedYield: false,
+    };
+  };
+
+  const [state, setState] = useState<YieldState>(getInitialState);
+
+  // Save state to localStorage whenever it changes
+  const updateState = (newState: YieldState | ((prev: YieldState) => YieldState)) => {
+    setState(prev => {
+      const updated = typeof newState === 'function' ? newState(prev) : newState;
+      localStorage.setItem('yieldState', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const activateYield = () => {
-    setState(prev => ({
+    updateState(prev => ({
       ...prev,
       isActivated: true,
       showDiscoveryBanner: false,
@@ -43,11 +65,11 @@ export function useYieldState() {
   };
 
   const dismissBanner = () => {
-    setState(prev => ({ ...prev, showDiscoveryBanner: false }));
+    updateState(prev => ({ ...prev, showDiscoveryBanner: false }));
   };
 
   const setAIRule = () => {
-    setState(prev => ({
+    updateState(prev => ({
       ...prev,
       hasAIRule: true,
       ethBalance: "1.0", // Keep 1.0 ETH in wallet
@@ -60,7 +82,7 @@ export function useYieldState() {
   };
 
   const setUSDCRule = () => {
-    setState(prev => {
+    updateState(prev => {
       const currentUSDC = parseFloat(prev.usdcBalance.replace(",", ""));
       const sweepAmount = Math.max(0, currentUSDC - 500);
       
@@ -78,11 +100,11 @@ export function useYieldState() {
   };
 
   const toggleYieldExpansion = () => {
-    setState(prev => ({ ...prev, expandedYield: !prev.expandedYield }));
+    updateState(prev => ({ ...prev, expandedYield: !prev.expandedYield }));
   };
 
   const withdrawFromYield = (amount: string) => {
-    setState(prev => {
+    updateState(prev => {
       const ethYield = parseFloat(prev.yieldTokens[0].amount);
       const ethWallet = parseFloat(prev.ethBalance);
       const withdrawAmount = parseFloat(amount);
@@ -98,6 +120,40 @@ export function useYieldState() {
     });
   };
 
+  const depositToYield = (token: string, amount: string) => {
+    updateState(prev => {
+      const depositAmount = parseFloat(amount);
+      
+      if (token === "ETH") {
+        const currentEthWallet = parseFloat(prev.ethBalance);
+        const currentEthYield = parseFloat(prev.yieldTokens[0].amount);
+        
+        return {
+          ...prev,
+          ethBalance: Math.max(0, currentEthWallet - depositAmount).toFixed(1),
+          yieldTokens: [
+            { ...prev.yieldTokens[0], amount: (currentEthYield + depositAmount).toFixed(1) },
+            ...prev.yieldTokens.slice(1),
+          ],
+        };
+      } else if (token === "USDC") {
+        const currentUsdcWallet = parseFloat(prev.usdcBalance.replace(",", ""));
+        const currentUsdcYield = parseFloat(prev.yieldTokens[2].amount);
+        
+        return {
+          ...prev,
+          usdcBalance: Math.max(0, currentUsdcWallet - depositAmount).toFixed(2),
+          yieldTokens: [
+            prev.yieldTokens[0],
+            prev.yieldTokens[1],
+            { ...prev.yieldTokens[2], amount: (currentUsdcYield + depositAmount).toFixed(2) },
+          ],
+        };
+      }
+      
+      return prev;
+    });
+  };
   return {
     state,
     activateYield,
@@ -106,5 +162,6 @@ export function useYieldState() {
     setUSDCRule,
     toggleYieldExpansion,
     withdrawFromYield,
+    depositToYield,
   };
 }

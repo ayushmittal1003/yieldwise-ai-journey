@@ -32,6 +32,25 @@ export function CurrencyCard({
   expanded = false,
   onExpandToggle
 }: CurrencyCardProps) {
+  // Calculate total yield account value
+  const getTotalYieldValue = () => {
+    if (!isYieldAccount || tokens.length === 0) return amount;
+    
+    let total = 0;
+    tokens.forEach(token => {
+      const tokenAmount = parseFloat(token.amount);
+      if (token.symbol === "ETH") {
+        total += tokenAmount * 2500; // Approximate ETH price
+      } else if (token.symbol === "BTC") {
+        total += tokenAmount * 45000; // Approximate BTC price
+      } else if (token.symbol === "USDC") {
+        total += tokenAmount;
+      }
+    });
+    
+    return `$${total.toFixed(2)}`;
+  };
+
   return (
     <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] transition-shadow">
       <div className="flex items-center justify-between">
@@ -51,7 +70,9 @@ export function CurrencyCard({
                 </Button>
               )}
             </div>
-            <p className="text-2xl font-semibold text-foreground">{amount}</p>
+            <p className="text-2xl font-semibold text-foreground">
+              {isYieldAccount ? getTotalYieldValue() : amount}
+            </p>
           </div>
         </div>
         {showAddButton && (

@@ -5,11 +5,15 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { WithdrawModal } from "@/components/modals/WithdrawModal";
+import { DepositModal } from "@/components/modals/DepositModal";
 import { useYieldState } from "@/hooks/useYieldState";
+import { useToast } from "@/hooks/use-toast";
 
 export default function YieldAccount() {
-  const { state, withdrawFromYield } = useYieldState();
+  const { state, withdrawFromYield, depositToYield } = useYieldState();
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const { toast } = useToast();
 
   const yieldMetrics = [
     { token: "ETH", balance: state.yieldTokens[0].amount, apy: "3.0%" },
@@ -17,6 +21,13 @@ export default function YieldAccount() {
     { token: "USDC", balance: state.yieldTokens[2].amount, apy: "4.0%" },
   ];
 
+  const handleDeposit = (token: string, amount: string) => {
+    depositToYield(token, amount);
+    toast({
+      title: "Deposit Successful",
+      description: `${amount} ${token} has been deposited to your Yield Account.`,
+    });
+  };
   return (
     <div className="flex-1 bg-background">
       <Header title="Yield Account Overview" showActions={false} />
@@ -70,7 +81,10 @@ export default function YieldAccount() {
 
         {/* Actions */}
         <div className="flex space-x-4 mb-8">
-          <Button className="flex items-center space-x-2">
+          <Button 
+            className="flex items-center space-x-2"
+            onClick={() => setShowDepositModal(true)}
+          >
             <Plus className="h-4 w-4" />
             <span>Deposit</span>
           </Button>
@@ -175,6 +189,13 @@ export default function YieldAccount() {
           availableBalance={parseFloat(state.yieldTokens[0].amount)}
         />
       </div>
+        <DepositModal
+          isOpen={showDepositModal}
+          onClose={() => setShowDepositModal(false)}
+          onDeposit={handleDeposit}
+          ethBalance={state.ethBalance}
+          usdcBalance={state.usdcBalance}
+        />
     </div>
   );
 }
