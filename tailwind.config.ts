@@ -22,6 +22,17 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        transfi: {
+          sidebar: "hsl(var(--sidebar-bg))",
+          "sidebar-text": "hsl(var(--sidebar-text))",
+          "sidebar-active": "hsl(var(--sidebar-active))",
+          "sidebar-hover": "hsl(var(--sidebar-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
