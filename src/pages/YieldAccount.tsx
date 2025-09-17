@@ -15,10 +15,23 @@ export default function YieldAccount() {
   const [showDepositModal, setShowDepositModal] = useState(false);
   const { toast } = useToast();
 
+  // Create reactive yield metrics from current state
   const yieldMetrics = [
-    { token: "ETH", balance: state.yieldTokens[0].amount, apy: "3.0%" },
-    { token: "BTC", balance: state.yieldTokens[1].amount, apy: "2.5%" },
-    { token: "USDC", balance: state.yieldTokens[2].amount, apy: "4.0%" },
+    { 
+      token: "ETH", 
+      balance: state.yieldTokens.find(t => t.symbol === "ETH")?.amount || "0.00", 
+      apy: "3.0%" 
+    },
+    { 
+      token: "BTC", 
+      balance: state.yieldTokens.find(t => t.symbol === "BTC")?.amount || "0.00", 
+      apy: "2.5%" 
+    },
+    { 
+      token: "USDC", 
+      balance: state.yieldTokens.find(t => t.symbol === "USDC")?.amount || "0.00", 
+      apy: "4.0%" 
+    },
   ];
 
   const handleDeposit = (token: string, amount: string) => {
@@ -68,13 +81,17 @@ export default function YieldAccount() {
           ))}
         </div>
 
-        {/* Total Interest Earned */}
+        {/* Total Yield Balance */}
         <Card className="p-6 mb-8">
           <div className="flex items-center space-x-3">
             <TrendingUp className="h-8 w-8 text-success" />
             <div>
-              <p className="text-sm text-muted-foreground">Total Interest Earned</p>
-              <p className="text-2xl font-bold text-success">$0.00</p>
+              <p className="text-sm text-muted-foreground">Total Yield Balance</p>
+              <p className="text-2xl font-bold text-success">
+                ${((parseFloat(yieldMetrics[0].balance) * 2400) + 
+                   (parseFloat(yieldMetrics[1].balance) * 45000) + 
+                   parseFloat(yieldMetrics[2].balance)).toFixed(2)}
+              </p>
             </div>
           </div>
         </Card>
@@ -186,7 +203,7 @@ export default function YieldAccount() {
           isOpen={showWithdrawModal}
           onClose={() => setShowWithdrawModal(false)}
           onWithdraw={withdrawFromYield}
-          availableBalance={parseFloat(state.yieldTokens[0].amount)}
+          availableBalance={parseFloat(yieldMetrics[0].balance)}
         />
       </div>
         <DepositModal
