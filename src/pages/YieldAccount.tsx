@@ -124,33 +124,22 @@ export default function YieldAccount() {
           <Card className="p-6">
             <h3 className="font-semibold mb-4">Recent Transactions</h3>
             <div className="space-y-4">
-              {state.hasAIRule && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center space-x-3">
-                    <TrendingUp className="h-5 w-5 text-purple-600" />
-                    <div>
-                      <p className="font-medium">AI Sweep from ETH Wallet</p>
-                      <p className="text-sm text-muted-foreground">Sep 18, 2025</p>
+              {state.transactions && state.transactions.length > 0 ? (
+                state.transactions.map((tx) => (
+                  <div key={tx.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center space-x-3">
+                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">
+                          {tx.kind === "withdraw" ? "Withdraw from Yield" : tx.kind === "deposit" ? "Deposit to Yield" : "AI Sweep to Yield"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{new Date(tx.timestamp).toLocaleDateString()}</p>
+                      </div>
                     </div>
+                    <span className="font-medium text-success">{tx.direction === "wallet->yield" ? "+" : "-"}{tx.amount} {tx.token}</span>
                   </div>
-                  <span className="font-medium text-success">+1.5 ETH</span>
-                </div>
-              )}
-
-              {state.hasUSDCRule && (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center space-x-3">
-                    <TrendingUp className="h-5 w-5 text-blue-600" />
-                    <div>
-                      <p className="font-medium">AI Sweep from USDC Wallet</p>
-                      <p className="text-sm text-muted-foreground">Sep 18, 2025</p>
-                    </div>
-                  </div>
-                  <span className="font-medium text-success">+932.90 USDC</span>
-                </div>
-              )}
-              
-              {!state.hasAIRule && !state.hasUSDCRule && (
+                ))
+              ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-50" />
                   <p>No transactions yet</p>
