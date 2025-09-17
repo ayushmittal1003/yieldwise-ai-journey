@@ -75,13 +75,17 @@ export function CurrencyCard({
             </p>
           </div>
         </div>
-        {showAddButton && (
+        {showAddButton && !isYieldAccount && (
           <div className="flex items-center space-x-1">
-            {isYieldAccount && <YieldAccountLink />}
             <Button variant="ghost" size="sm" className="text-muted-foreground">
               <Plus className="h-4 w-4 mr-1" />
               Add
             </Button>
+          </div>
+        )}
+        {isYieldAccount && (
+          <div className="flex items-center space-x-1">
+            <YieldAccountLink />
           </div>
         )}
       </div>

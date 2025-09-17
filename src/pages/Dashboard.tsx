@@ -11,7 +11,7 @@ import { useYieldState } from "@/hooks/useYieldState";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const { state, activateYield, dismissBanner, setAIRule, setUSDCRule, toggleYieldExpansion } = useYieldState();
+  const { state, activateYield, dismissBanner, setAIRule, setUSDCRule, toggleYieldExpansion, transferFunds } = useYieldState();
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const { toast } = useToast();
@@ -42,6 +42,17 @@ export default function Dashboard() {
     });
   };
 
+  const handleTransfer = (from: string, to: string, token: string, amount: string) => {
+    transferFunds(from, to, token, amount);
+    
+    const direction = from === "wallet" ? "to" : "from";
+    const account = from === "wallet" ? "Yield Account" : "wallet";
+    
+    toast({
+      title: "Transfer Successful",
+      description: `${amount} ${token} transferred ${direction} ${account}.`,
+    });
+  };
   return (
     <div className="flex-1 bg-background">
       <Header title="Dashboard" />
@@ -131,6 +142,7 @@ export default function Dashboard() {
           onClose={() => setShowAIChat(false)}
           onRuleSet={handleAIRuleSet}
           onUSDCRuleSet={handleUSDCRuleSet}
+          onTransfer={handleTransfer}
         />
       </div>
     </div>

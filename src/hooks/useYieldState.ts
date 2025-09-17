@@ -18,16 +18,8 @@ export interface YieldState {
 }
 
 export function useYieldState() {
-  // Initialize state from localStorage if available
   const getInitialState = (): YieldState => {
-    const saved = localStorage.getItem('yieldState');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Failed to parse saved yield state:', e);
-      }
-    }
+    // Always start fresh for demo purposes
     return {
       isActivated: false,
       showDiscoveryBanner: true,
@@ -46,11 +38,9 @@ export function useYieldState() {
 
   const [state, setState] = useState<YieldState>(getInitialState);
 
-  // Save state to localStorage whenever it changes
   const updateState = (newState: YieldState | ((prev: YieldState) => YieldState)) => {
     setState(prev => {
       const updated = typeof newState === 'function' ? newState(prev) : newState;
-      localStorage.setItem('yieldState', JSON.stringify(updated));
       return updated;
     });
   };
@@ -154,6 +144,33 @@ export function useYieldState() {
       return prev;
     });
   };
+
+  const transferFunds = (from: string, to: string, token: string, amount: string) => {
+    if (from === "wallet" && to === "yield") {
+      depositToYield(token, amount);
+    } else if (from === "yield" && to === "wallet") {
+      if (token === "ETH") {
+        withdrawFromYield(amount);
+      } else if (token === "USDC") {
+        updateState(prev => {
+          const withdrawAmount = parseFloat(amount);
+          const currentUsdcWallet = parseFloat(prev.usdcBalance.replace(",", ""));
+          const currentUsdcYield = parseFloat(prev.yieldTokens[2].amount);
+          
+          return {
+            ...prev,
+            usdcBalance: (currentUsdcWallet + withdrawAmount).toFixed(2),
+            yieldTokens: [
+              prev.yieldTokens[0],
+              prev.yieldTokens[1],
+              { ...prev.yieldTokens[2], amount: Math.max(0, currentUsdcYield - withdrawAmount).toFixed(2) },
+            ],
+          };
+        });
+      }
+    }
+  };
+
   return {
     state,
     activateYield,
@@ -163,5 +180,6 @@ export function useYieldState() {
     toggleYieldExpansion,
     withdrawFromYield,
     depositToYield,
+    transferFunds,
   };
 }
