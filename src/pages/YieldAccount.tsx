@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { WithdrawModal } from "@/components/modals/WithdrawModal";
 import { DepositModal } from "@/components/modals/DepositModal";
-import { useYieldState } from "@/hooks/useYieldState";
+import { useYield } from "@/context/YieldContext";
 import { useToast } from "@/hooks/use-toast";
 
 export default function YieldAccount() {
-  const { state, withdrawFromYield, depositToYield } = useYieldState();
+  const { state, withdrawFromYield, depositToYield } = useYield();
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const { toast } = useToast();

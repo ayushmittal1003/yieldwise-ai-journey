@@ -34,37 +34,37 @@ export function AIChatOverlay({ isOpen, onClose, onRuleSet, onUSDCRuleSet, onTra
   const [isProcessing, setIsProcessing] = useState(false);
 
   const parseTransferCommand = (input: string) => {
-    const lowerInput = input.toLowerCase();
-    
-    // Extract amount and token
-    const ethMatch = lowerInput.match(/(\d+(?:\.\d+)?)\s*eth/);
-    const usdcMatch = lowerInput.match(/(\d+(?:\.\d+)?)\s*usdc/);
-    const btcMatch = lowerInput.match(/(\d+(?:\.\d+)?)\s*btc/);
-    
+    const lower = input.toLowerCase().replace(/-/g, " ");
+
+    // Extract amount & token (support formats like 0.5eth or 100 usdc)
+    const amountTokenMatch = lower.match(/(\d+(?:\.\d+)?)\s*(eth|usdc|btc)/);
     let amount = "";
     let token = "";
-    
-    if (ethMatch) {
-      amount = ethMatch[1];
-      token = "ETH";
-    } else if (usdcMatch) {
-      amount = usdcMatch[1];
-      token = "USDC";
-    } else if (btcMatch) {
-      amount = btcMatch[1];
-      token = "BTC";
+    if (amountTokenMatch) {
+      amount = amountTokenMatch[1];
+      const t = amountTokenMatch[2];
+      token = t === "eth" ? "ETH" : t === "usdc" ? "USDC" : "BTC";
     }
-    
-    // Determine direction
-    const toYield = lowerInput.includes("yield") && (lowerInput.includes("to") || lowerInput.includes("move") || lowerInput.includes("transfer") || lowerInput.includes("deposit"));
-    const fromYield = lowerInput.includes("withdraw") || lowerInput.includes("from yield") || (lowerInput.includes("yield") && lowerInput.includes("wallet"));
-    
-    if (toYield && amount && token) {
+
+    // Direction analysis: wallet/multi-currency <-> yield
+    const walletSynonyms = ["wallet", "multi currency", "multicurrency", "multi-currency", "main account", "account"]; 
+    const mentionsWallet = walletSynonyms.some((w) => lower.includes(w));
+    const mentionsYield = lower.includes("yield");
+
+    const verbsToYield = ["to yield", "into yield", "deposit", "move", "transfer", "shift", "sweep", "add"];
+    const verbsFromYield = ["withdraw", "from yield", "redeem", "move", "transfer", "shift", "send to wallet", "to wallet", "to multi", "to multi currency", "to multi-currency"];
+
+    const isToYield = mentionsYield && verbsToYield.some((v) => lower.includes(v));
+    const isFromYield = (lower.includes("withdraw") || lower.includes("from yield")) ||
+      (mentionsYield && verbsFromYield.some((v) => lower.includes(v)));
+
+    if (isToYield && amount && token) {
       return { from: "wallet", to: "yield", token, amount };
-    } else if (fromYield && amount && token) {
+    }
+    if (isFromYield && amount && token) {
       return { from: "yield", to: "wallet", token, amount };
     }
-    
+
     return null;
   };
 

@@ -7,11 +7,11 @@ import { AIFloatingButton } from "@/components/dashboard/AIFloatingButton";
 import { ActivationModal } from "@/components/modals/ActivationModal";
 import { AIChatOverlay } from "@/components/chat/AIChatOverlay";
 import { TransactionList } from "@/components/dashboard/TransactionList";
-import { useYieldState } from "@/hooks/useYieldState";
+import { useYield } from "@/context/YieldContext";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
-  const { state, activateYield, dismissBanner, setAIRule, setUSDCRule, toggleYieldExpansion, transferFunds } = useYieldState();
+  const { state, activateYield, dismissBanner, setAIRule, setUSDCRule, toggleYieldExpansion, transferFunds } = useYield();
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   const { toast } = useToast();
